@@ -1,16 +1,50 @@
-# School Locator Project
+# School Locator & Management API
 
 ## Overview
-This project provides an API and/or frontend to list schools along with their geographic locations. Users can provide their current coordinates (latitude and longitude) to find nearby schools. The project is built with Node.js, Express (or your backend framework), and can be integrated with a frontend like React or any other client.
+This project provides a backend API for managing schools and retrieving school data based on user location. Users can add new schools and fetch all schools, sorted by proximity to their coordinates. Built with Node.js, Express, MySQL, and Zod for validation, it is ready for integration with any frontend (e.g., React).
+
+## Live Demo
+[https://schoolmanagement-ncvm.onrender.com](https://schoolmanagement-ncvm.onrender.com)
 
 ## Features
-- Store and retrieve school information including name, address, latitude, and longitude.
-- Accept user location coordinates as input.
-- Return a list of schools (can be filtered or sorted by proximity to the user).
-- Easy to extend for features like distance calculations, search, and filtering.
+- Add new schools with name, address, latitude, and longitude.
+- Retrieve all schools, sorted by proximity to user coordinates.
+- Data validation using Zod.
+- Persistent storage with MySQL (hosted on Railway).
+- Deployed on Render.
+
+## API Endpoints
+
+### Add a School
+`POST https://schoolmanagement-ncvm.onrender.com/api/v1/schools/addSchool`
+
+**Request Body:**
+```json
+{
+  "name": "Greenwood High School",
+  "address": "123 Maple Street, Springfield",
+  "latitude": 37.2153,
+  "longitude": -93.2982
+}
+```
+
+### Get All Schools by Location
+`GET https://schoolmanagement-ncvm.onrender.com/api/v1/schools/getAllSchools?userLatitude=37.7749&userLongitude=-122.4194`
+
+**Response:**
+```json
+[
+  {
+    "id": 1,
+    "name": "Greenwood High School",
+    "address": "123 Maple Street, Springfield",
+    "distance_km": 50
+  },
+  ...
+]
+```
 
 ## Sample Data
-Example of school data used:
 ```json
 [
   {
@@ -26,10 +60,59 @@ Example of school data used:
     "longitude": -118.3267
   }
 ]
- 
+```
 
- user Coordinates used {
+**Sample User Coordinates:**
+```json
+{
   "latitude": 37.7749,
   "longitude": -122.4194
 }
+```
 
+## Getting Started
+
+### Prerequisites
+- Node.js (v14+ recommended)
+- npm
+- MySQL database
+
+### Installation
+
+1. Clone the repo:
+   ```bash
+   git clone https://github.com/gaurav-kandhalia/SchoolManagement.git
+   cd SchoolManagement
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Set up environment variables:
+   Create a `.env` file in the root directory:
+   ```
+   DB_HOST=your_host
+   DB_USER=your_user
+   DB_PASSWORD=your_password
+   DB_NAME=your_db
+   DB_PORT=your_port
+   ```
+
+4. Run the server:
+   ```bash
+   npm run dev
+   ```
+
+## Technologies Used
+- Node.js
+- Express
+- MySQL2
+- Zod (validation)
+- Railway (database hosting)
+- Render (deployment)
+
+## Security Notice
+**Do not share your database credentials publicly.**  
+Use environment variables and `.env` files to keep sensitive information secure.
