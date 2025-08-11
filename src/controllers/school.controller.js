@@ -1,5 +1,5 @@
 import {asyncHandler} from '../utils/asyncHandler.js';
-import { connection } from '../db/db.js';
+import {pool} from '../db/db.js';
 import { schoolSchema } from '../validations/school.validation.js';
 import {ApiResponse} from '../utils/ApiResponse.js';
 import {ApiError} from '../utils/ApiError.js';
@@ -31,7 +31,7 @@ export const addSchool = asyncHandler(async (req, res) => {
 
     const { name, address, latitude, longitude } = validation.data;
     // Check if school already exists
-           const [existing] = await connection.execute(
+           const [existing] = await pool.execute(
         `SELECT id FROM schools WHERE name = ? AND address = ?`,
         [name, address]
     );
@@ -39,14 +39,14 @@ export const addSchool = asyncHandler(async (req, res) => {
         throw new ApiError(409, "School with this name and address already exists");
     }
    
-    const [result] = await connection.execute(
-        `INSERT INTO schools (name, address, latitude, longitude) VALUES (?, ?, ?, ?)`,
+    const [result] = await pool.execute(
+        `INSERT INTO schools (name, address,latitude,longitude) VALUES (?, ?, ?, ?)`,
         [name, address, latitude, longitude]
     );
 
 
 
-   const [schoolRows] = await connection.execute(
+   const [schoolRows] = await pool.execute(
         `SELECT id,name,address FROM schools WHERE id = ?`,
         [result.insertId]
     );
@@ -54,4 +54,41 @@ export const addSchool = asyncHandler(async (req, res) => {
 
     res.status(201).json(new ApiResponse(201,schoolRows[0], "School added successfully",  true));
      
+});
+
+
+export const getAllSchools= asyncHandler(async (req, res) => {
+    const {userLatitude,userLongitude} = req.query;
+    console.log(userLatitude,userLongitude);
+   
+
+
+    const [schools] = await pool.execute(
+        `
+        SELECT
+            id,
+            name,
+            address,
+           
+            ROUND(
+                6371 * ACOS(
+                    COS(RADIANS(?)) *
+                    COS(RADIANS(latitude)) *
+                    COS(RADIANS(longitude) - RADIANS(?)) +
+                    SIN(RADIANS(?)) *
+                    SIN(RADIANS(latitude))
+                )
+            ) AS distance_km
+        FROM schools
+        ORDER BY distance_km ASC;
+        `,
+        [userLatitude, userLongitude, userLatitude]
+    );
+
+    
+    if (schools.length === 0) {
+        return res.status(200).json(new ApiResponse(200, [], "No schools found", true));
+    }
+
+    res.status(200).json(new ApiResponse(200, schools, "Schools retrieved successfully", true));
 });
