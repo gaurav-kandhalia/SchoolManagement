@@ -1,5 +1,7 @@
 import mysql from "mysql2/promise";
-let connection
+
+let connection;
+
 const connectDB = async () => {
     try {
         connection = await mysql.createConnection({
@@ -12,9 +14,18 @@ const connectDB = async () => {
 
         console.log("Database Connected");
 
-        // Optional: test query
-        const [rows] = await connection.query("SHOW DATABASES");
-        console.log("Databases:", rows);
+        // Create table if not exists
+        await connection.execute(`
+            CREATE TABLE IF NOT EXISTS schools (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                address VARCHAR(255),
+                latitude FLOAT,
+                longitude FLOAT
+            );
+        `);
+
+        console.log("Schools table ready");
 
         return connection;
     } catch (err) {
@@ -23,5 +34,5 @@ const connectDB = async () => {
     }
 };
 
-
 export default connectDB;
+export { connection };
