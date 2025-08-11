@@ -1,8 +1,13 @@
 import express from "express";
 import morgan from "morgan";
 import schoolRouter from "./Routes/school.router.js";
+import cors from "cors";
 
 const app = express();
+app.use(cors({
+    origin:process.env.CORS_ORIGIN,
+    credentials:true
+}))
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
